@@ -39,9 +39,9 @@ class Product extends Model
             ->get();
     }
 
-    public function getProductSearch($skeyword,$smaker)//テーブル結合元データ
+    public function getProductSearch($keyword,$smaker)//テーブル結合元データ
     {
-        if($skeyword == null && $smaker == null){
+        if($keyword == null && $smaker == null){
             return DB::table('products')
 
             ->select(
@@ -51,9 +51,7 @@ class Product extends Model
                     )
             ->join('companies', 'products.company_id', '=', 'companies.id')
             ->get();
-        }
-
-        elseif($skeyword == null && $smaker !== null){
+        }elseif($keyword == null && $smaker !== null){
             return DB::table('products')
             ->select(
                 '*',
@@ -63,9 +61,7 @@ class Product extends Model
             ->join('companies', 'products.company_id', '=', 'companies.id')
             ->where('company_id','=',$smaker)
             ->get();  
-        }
-
-        elseif($skeyword !== null && $smaker == null){
+        }elseif($keyword !== null && $smaker == null){
             return DB::table('products')
             ->select(
                 '*',
@@ -73,11 +69,9 @@ class Product extends Model
                 'companies.id as companies_id'
                      )
             ->join('companies', 'products.company_id', '=', 'companies.id')
-            ->where('product_name', 'like', '%' . $skeyword . '%')
+            ->where('product_name', 'like', '%' . $keyword . '%')
             ->get();  
-        }
-
-        else{
+        }else{
             return DB::table('products')
             ->select(
                 '*',
@@ -85,7 +79,7 @@ class Product extends Model
                 'companies.id as companies_id'
                      )
             ->join('companies', 'products.company_id', '=', 'companies.id')
-            ->where('product_name', 'like', '%' . $skeyword . '%')
+            ->where('product_name', 'like', '%' . $keyword . '%')
             ->where('company_id','=',$smaker)
             ->get();  
         }

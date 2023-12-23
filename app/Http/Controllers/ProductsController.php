@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Product;
 use App\Models\Company;
+use Illuminate\Support\Facades\DB;
 
 class ProductsController extends Controller
 {
@@ -16,8 +17,14 @@ class ProductsController extends Controller
     // 商品情報をテーブルに登録
     public function store(Request $request)
     {
-        $this->product->register($request);
-
+        DB::beginTransaction();
+        try{
+            $this->product->register($request);
+            DB::commit();
+        }catch (\Exception $e) {
+            DB::rollback();
+            return back();
+        }
         // 商品の登録が成功した場合の処理（例えば、成功メッセージをフラッシュするなど）
         return redirect()->route('product.register')->with('success', '商品が登録されました。');
     }
@@ -34,8 +41,15 @@ class ProductsController extends Controller
     // 削除機能
     public function destroy($product_id)
     {
+        DB::beginTransaction();
+        try{
         // 指定されたIDのレコードを削除
         $product_id = $this -> product->deletePuroductById($product_id);
+        DB::commit();
+        }catch (\Exception $e) {
+            DB::rollback();
+            return back();
+        }
         return redirect()->route('home');
     }
 
@@ -66,14 +80,20 @@ class ProductsController extends Controller
 
     public function update(Request $request,$product_id)
     {
-        $this->product->updateRecord($request,$product_id);
-        $product = Product::find($product_id);
+        DB::beginTransaction();
+        try{
+            $this->product->updateRecord($request,$product_id);
+            $product = Product::find($product_id);
 
-        // 企業リストを取得
-        $model = new Company();
-        $companies = $model->getList();
-        $company = Company::find($product->company_id);
-
+            // 企業リストを取得
+            $model = new Company();
+            $companies = $model->getList();
+            $company = Company::find($product->company_id);
+            DB::commit();
+        }catch (\Exception $e) {
+            DB::rollback();
+            return back();
+        }
         // dd($product);
         return view('update_screen', compact('product', 'companies','company'));
     }

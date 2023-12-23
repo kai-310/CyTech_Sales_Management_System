@@ -53,8 +53,14 @@ class HomeController extends Controller
 
     public function destroy($id)
     {
-        // 指定されたIDのレコードを削除
-        $deletePuroduct = $this -> Product -> deletePuroductById($id);
+        DB::beginTransaction();
+        try{
+            // 指定されたIDのレコードを削除
+            $deletePuroduct = $this -> Product -> deletePuroductById($id);
+        } catch (\Exception $e) {
+            DB::rollback();
+            return back();
+        }
         // 削除したら一覧画面にリダイレクト
         return redirect() -> route('home');
     }
@@ -62,12 +68,12 @@ class HomeController extends Controller
     public function search(Request $searchRequest)
     {
         // dd($searchRequest);
-        $skeyword = $searchRequest -> input('keyword');
+        $keyword = $searchRequest -> input('keyword');
         $smaker = $searchRequest -> input('maker');
-        // dd($skeyword);
+        // dd($keyword);
         
         $this->products = new Product();
-        $products = $this -> products -> getProductSearch($skeyword,$smaker);
+        $products = $this -> products -> getProductSearch($keyword,$smaker);
         // dd($products);
 
         $model = new Company(); //企業リスト取得
