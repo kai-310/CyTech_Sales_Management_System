@@ -132,20 +132,8 @@ class Product extends Model
         }
     }
     
-    public function register($request)
+    public function register($request,$validatedData)
     {
-        // バリデーションルールを指定
-        $rules = [
-            'name' => 'required|string|max:255',
-            'price' => 'required|numeric|max_digits:10',
-            'stock' => 'required|integer|max_digits:10',
-            'maker' => 'required|integer',
-            'image' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-        ];
-    
-        // バリデーション実行
-        $validatedData = $request->validate($rules);
-    
         // リクエストデータから商品情報を取得
         $productData = [
             'product_name' => $validatedData['name'],

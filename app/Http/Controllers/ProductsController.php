@@ -17,9 +17,21 @@ class ProductsController extends Controller
     // 商品情報をテーブルに登録
     public function store(Request $request)
     {
+        // バリデーションルールを指定
+        $rules = [
+            'name' => 'required|string|max:255',
+            'price' => 'required|numeric|max_digits:10',
+            'stock' => 'required|integer|max_digits:10',
+            'maker' => 'required|integer',
+            'image' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+        ];
+    
+        // バリデーション実行
+        $validatedData = $request->validate($rules);
+
         DB::beginTransaction();
         try{
-            $this->product->register($request);
+            $this->product->register($request,$validatedData);
             DB::commit();
         }catch (\Exception $e) {
             DB::rollback();
