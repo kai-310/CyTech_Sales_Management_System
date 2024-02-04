@@ -53,7 +53,7 @@ class ProductsController extends Controller
     // 削除機能
     public function destroy($product_id)
     {
-        DB::beginTransaction();
+        /*DB::beginTransaction();
         try{
         // 指定されたIDのレコードを削除
         $product_id = $this -> product->deletePuroductById($product_id);
@@ -62,7 +62,25 @@ class ProductsController extends Controller
             DB::rollback();
             return back();
         }
-        return redirect()->route('home');
+        return redirect()->route('home');*/
+
+        DB::beginTransaction();
+        try {
+            // 指定されたIDのレコードを削除
+            $this->product->deletePuroductById($product_id);
+            DB::commit();
+            
+            // 削除後の商品一覧テーブルを取得
+            $columnName = "id";
+            $direction = "asc";
+            $products = $this->product->getSortedProduct($columnName, $direction);
+    
+            // 商品一覧テーブルのビューを返す
+            return view('partials.product_table', compact('products'))->render();
+        } catch (\Exception $e) {
+            DB::rollback();
+            return response()->json(['error' => '削除中にエラーが発生しました。'], 500);
+        }
     }
 
     // 詳細画面表示

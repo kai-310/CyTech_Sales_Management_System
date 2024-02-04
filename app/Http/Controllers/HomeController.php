@@ -27,7 +27,20 @@ class HomeController extends Controller
      *
      * @return \Illuminate\Contracts\Support\Renderable
      */
-    public function home()
+    public function home(Request $request)
+    {
+        $columnName = "id";
+        $direction = "asc";
+
+        $this->products = new Product();
+        $products = $this->products->getSortedProduct($columnName, $direction);
+
+        $model = new Company();
+        $companies = $model->getList();
+
+        return view('home', compact('companies', 'products', 'columnName', 'direction'));
+    }
+    /*public function home()
     {
         $this -> products = new Product();//商品情報
         $products = $this -> products -> getProduct();
@@ -36,7 +49,7 @@ class HomeController extends Controller
         $companies = $model -> getList();
         //  dd($products);
         return view('home', compact('companies','products'));
-    }
+    }*/
 
     public function index()
     {
@@ -67,18 +80,26 @@ class HomeController extends Controller
 
     public function search(Request $searchRequest)
     {
-        // dd($searchRequest);
-        $keyword = $searchRequest -> input('keyword');
-        $smaker = $searchRequest -> input('maker');
-        // dd($keyword);
-        
-        $this->products = new Product();
-        $products = $this -> products -> getProductSearch($keyword,$smaker);
-        // dd($products);
+        $keyword = $searchRequest->input('keyword');
+        $smaker = $searchRequest->input('maker');
+        $priceFloor = $searchRequest->input('price-floor');
+        $priceCeiling = $searchRequest->input('price-ceiling');
+        $stockFloor = $searchRequest->input('stock-floor');
+        $stockCeiling = $searchRequest->input('stock-ceiling');
+    
+        $products = $this->product->getProductSearch($keyword, $smaker, $priceFloor, $priceCeiling, $stockFloor, $stockCeiling);
+    
+        return view('partials.product_table', compact('products'))->render();
+    }
 
-        $model = new Company(); //企業リスト取得
-        $companies = $model->getList();
-
-        return view('home', compact('companies','products'));
+    public function sort(Request $sortRequest)
+    {
+        $columnName = $sortRequest->input('column');
+        $direction = $sortRequest->input('direction');
+         //dd($sortRequest);
+         //dd($columnName);
+        $products = $this->product->getSortedProduct($columnName, $direction);
+        //dd($products);
+        return view('partials.product_table', compact('products'))->render();
     }
 }

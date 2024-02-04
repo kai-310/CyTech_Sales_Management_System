@@ -25,7 +25,7 @@ Route::get('/productregister', [App\Http\Controllers\ProductsController::class, 
 //商品登録処理
 Route::post('/productregister', [App\Http\Controllers\ProductsController::class,'store'])->name('products.store');
 //商品の削除
-Route::post('/destroy{product_id}', [App\Http\Controllers\ProductsController::class, 'destroy'])->name('destroy');
+Route::delete('/destroy/{product_id}', [App\Http\Controllers\ProductsController::class, 'destroy'])->name('destroy');
 //詳細画面表示
 Route::get('/show/{product_id}', [App\Http\Controllers\ProductsController::class, 'show'])->name('product.show');
 //詳細編集画面表示
@@ -34,3 +34,5 @@ Route::get('/updateScreen/{product_id}', [App\Http\Controllers\ProductsControlle
 Route::put('/updateScreen/{product_id}', [App\Http\Controllers\ProductsController::class, 'update'])->name('update');
 //検索機能
 Route::post('/search', [App\Http\Controllers\HomeController::class, 'search'])->name('search');
+//ソート機能
+Route::post('/sort', [App\Http\Controllers\HomeController::class, 'sort'])->name('sort');

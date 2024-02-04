@@ -39,52 +39,41 @@ class Product extends Model
             ->get();
     }
 
-    public function getProductSearch($keyword,$smaker)//テーブル結合元データ
+    public function getProductSearch($keyword, $smaker, $priceFloor, $priceCeiling, $stockFloor, $stockCeiling)
     {
-        if($keyword == null && $smaker == null){
-            return DB::table('products')
+        $query = DB::table('products')
+        ->select(
+            '*',
+            'products.id as product_id',
+            'companies.id as companies_id'
+        )
+        ->join('companies', 'products.company_id', '=', 'companies.id');
 
-            ->select(
-                        '*',
-                        'products.id as product_id',
-                        'companies.id as companies_id'
-                    )
-            ->join('companies', 'products.company_id', '=', 'companies.id')
-            ->get();
-        }elseif($keyword == null && $smaker !== null){
-            return DB::table('products')
-            ->select(
-                '*',
-                'products.id as product_id',
-                'companies.id as companies_id'
-                     )
-            ->join('companies', 'products.company_id', '=', 'companies.id')
-            ->where('company_id','=',$smaker)
-            ->get();  
-        }elseif($keyword !== null && $smaker == null){
-            return DB::table('products')
-            ->select(
-                '*',
-                'products.id as product_id',
-                'companies.id as companies_id'
-                     )
-            ->join('companies', 'products.company_id', '=', 'companies.id')
-            ->where('product_name', 'like', '%' . $keyword . '%')
-            ->get();  
-        }else{
-            return DB::table('products')
-            ->select(
-                '*',
-                'products.id as product_id',
-                'companies.id as companies_id'
-                     )
-            ->join('companies', 'products.company_id', '=', 'companies.id')
-            ->where('product_name', 'like', '%' . $keyword . '%')
-            ->where('company_id','=',$smaker)
-            ->get();  
+        if ($keyword !== null) {
+            $query->where('product_name', 'like', '%' . $keyword . '%');
         }
-    }
 
+        if ($smaker !== null) {
+            $query->where('company_id', '=', $smaker);
+        }
+
+        if ($priceFloor !== null) {
+            $query->where('price', '>=',$priceFloor);
+        }
+
+        if ($priceCeiling !== null) {
+            $query->where('price', '<=',$priceCeiling);
+        }
+
+        if ($stockFloor !== null) {
+            $query->where('stock', '>=',$stockFloor);
+        }
+
+        if ($stockCeiling !== null) {
+            $query->where('stock', '<=',$stockCeiling);
+        }
+        return $query->get();
+    }
 
     /**
      * リクエストされたIDをもとにbooksテーブルのレコードを1件取得
@@ -147,6 +136,19 @@ class Product extends Model
         // 商品の作成
         $product = Product::create($productData);
     }
-    
+
+    public function getSortedProduct($column, $direction)
+    {
+        return DB::table('products')
+            ->select(
+                'products.*',
+                'products.id as product_id',
+                'companies.id as companies_id',
+                'companies.company_name'
+            )
+            ->join('companies', 'products.company_id', '=', 'companies.id')
+             ->orderBy($column, $direction)
+            ->get();
+    } 
 
 }
