@@ -33,7 +33,7 @@ class Product extends Model
             ->select(
                         '*',
                         'products.id as product_id',
-                        'companies.id as companies_id'
+                        'companies.id as companies_id',
                     )
             ->join('companies', 'products.company_id', '=', 'companies.id')
             ->get();
@@ -137,7 +137,46 @@ class Product extends Model
         $product = Product::create($productData);
     }
 
-    public function getSortedProduct($column, $direction)
+    public function getSortedProduct($keyword, $smaker, $priceFloor, $priceCeiling, $stockFloor, $stockCeiling, $columnName, $direction)
+    {
+        $query = DB::table('products')
+        ->select(
+            'products.*',
+            'products.id as product_id',
+            'companies.id as companies_id',
+            'companies.company_name'
+        )
+        ->join('companies', 'products.company_id', '=', 'companies.id');
+
+            if ($keyword !== null) {
+                $query->where('product_name', 'like', '%' . $keyword . '%');
+            }
+    
+            if ($smaker !== null) {
+                $query->where('company_id', '=', $smaker);
+            }
+    
+            if ($priceFloor !== null) {
+                $query->where('price', '>=',$priceFloor);
+            }
+    
+            if ($priceCeiling !== null) {
+                $query->where('price', '<=',$priceCeiling);
+            }
+    
+            if ($stockFloor !== null) {
+                $query->where('stock', '>=',$stockFloor);
+            }
+    
+            if ($stockCeiling !== null) {
+                $query->where('stock', '<=',$stockCeiling);
+            }
+
+            $query->orderBy($columnName, $direction);
+            return $query->get();
+            
+    } 
+    public function getSortedProductTest($column, $direction)
     {
         return DB::table('products')
             ->select(
@@ -147,7 +186,7 @@ class Product extends Model
                 'companies.company_name'
             )
             ->join('companies', 'products.company_id', '=', 'companies.id')
-             ->orderBy($column, $direction)
+            ->orderBy($column, $direction)
             ->get();
     } 
 

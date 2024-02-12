@@ -29,27 +29,15 @@ class HomeController extends Controller
      */
     public function home(Request $request)
     {
-        $columnName = "id";
-        $direction = "asc";
 
         $this->products = new Product();
-        $products = $this->products->getSortedProduct($columnName, $direction);
+    $products = $this->products->getProduct();
 
         $model = new Company();
         $companies = $model->getList();
 
-        return view('home', compact('companies', 'products', 'columnName', 'direction'));
+        return view('home', compact('companies', 'products'));
     }
-    /*public function home()
-    {
-        $this -> products = new Product();//商品情報
-        $products = $this -> products -> getProduct();
-
-        $model = new Company(); //企業リスト取得
-        $companies = $model -> getList();
-        //  dd($products);
-        return view('home', compact('companies','products'));
-    }*/
 
     public function index()
     {
@@ -64,22 +52,9 @@ class HomeController extends Controller
         return view('home', compact('companies'));
     }
 
-    public function destroy($id)
-    {
-        DB::beginTransaction();
-        try{
-            // 指定されたIDのレコードを削除
-            $deletePuroduct = $this -> Product -> deletePuroductById($id);
-        } catch (\Exception $e) {
-            DB::rollback();
-            return back();
-        }
-        // 削除したら一覧画面にリダイレクト
-        return redirect() -> route('home');
-    }
-
     public function search(Request $searchRequest)
     {
+
         $keyword = $searchRequest->input('keyword');
         $smaker = $searchRequest->input('maker');
         $priceFloor = $searchRequest->input('price-floor');
@@ -94,12 +69,20 @@ class HomeController extends Controller
 
     public function sort(Request $sortRequest)
     {
+        // dd($sortRequest);
+        //検索
+        $keyword = $sortRequest->input('keyword');
+        $smaker = $sortRequest->input('maker');
+        $priceFloor = $sortRequest->input('price-floor');
+        $priceCeiling = $sortRequest->input('price-ceiling');
+        $stockFloor = $sortRequest->input('stock-floor');
+        $stockCeiling = $sortRequest->input('stock-ceiling');
+        //ソート
         $columnName = $sortRequest->input('column');
         $direction = $sortRequest->input('direction');
-         //dd($sortRequest);
-         //dd($columnName);
-        $products = $this->product->getSortedProduct($columnName, $direction);
-        //dd($products);
+
+        $products = $this->product->getSortedProduct($keyword, $smaker, $priceFloor, $priceCeiling, $stockFloor, $stockCeiling, $columnName, $direction);
+
         return view('partials.product_table', compact('products'))->render();
     }
 }

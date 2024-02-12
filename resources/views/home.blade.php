@@ -82,10 +82,10 @@
                             <a href="{{ route('product.show', ['product_id' => $product -> product_id]) }}" class="btn btn-primary">詳細</a>
                         </div>
                         <div>
-                            <form action="{{ route('destroy', ['product_id' => $product -> product_id]) }}" method="post">
+                            <form>
                                 @csrf
                                 @method('DELETE')
-                                <button type="submit" class="btn btn-secondary delete-btn" onclick="return confirm('本当に削除しますか？')">削除</button>
+                                <button class="btn btn-secondary delete-btn" data-product_id="{{ $product->product_id }}">削除</button>
                             </form>
                         </div>
                     </div>
